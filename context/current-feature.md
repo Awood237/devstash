@@ -1,15 +1,27 @@
 # Current Feature
 
-## In Progress
+<!-- Feature name and short description -->
 
-_Nothing in progress._
+## Status
+
+<!-- Not Started | In Progress | Completed -->
+
+## Goals
+
+<!-- Goals and requirements -->
+
+## Notes
+
+<!-- Any extra notes -->
 
 ## History
 
-### Initial Next.js & Tailwind setup
+<!-- Keep this updated. Earliest to latest -->
 
-- Scaffolded the project with Create Next App (Next.js 16.2.9, React 19.2.4, TypeScript strict).
-- Configured Tailwind CSS v4 via `@import "tailwindcss"` in `src/app/globals.css` (no `tailwind.config` file — v4 uses CSS-based config).
-- Removed the default Create Next App boilerplate (public SVGs) and reduced `src/app/page.tsx` to a minimal `Devstash` landing page.
-- Added planning docs under `context/` (project overview, coding standards, AI interaction, current feature).
-- Committed and pushed to `origin` (`chore: initial next.js and tailwind setup`).
+- **Dashboard UI Phase 1** — Completed. Scaffolded the dashboard layout (phase 1 of 3). See @context/features/dashboard-phase-1-spec.md.
+  - Initialized shadcn/ui (Tailwind v4, CSS-based config) and added `button` + `input` components.
+  - Enabled dark mode by default via `className="dark"` on `<html>`; updated app metadata to DevStash.
+  - Built `/dashboard` route: `DashboardLayout` shell with `TopBar` (display-only search + New Collection/New Item buttons) and placeholder `Sidebar` / `Main` (h2s).
+  - Used `secondary` variant for the New Item button so it isn't white in dark mode.
+  - Added DevStash logo + wordmark (gradient tile with lucide `Layers` icon) to the sidebar header.
+  - `npm run build` passes; `/dashboard` verified serving 200 with expected content.
