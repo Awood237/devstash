@@ -40,3 +40,13 @@
   - Page shows all 6 collections, pinned items, and the 10 most recent items (only 7 exist, sorted newest-first); added `getItemType(typeId)` lookup helper to `mock-data.ts`.
   - Data-driven hex colors use inline `style` only where unavoidable (card left borders); everything else is Tailwind + lucide's `color` prop.
   - `npm run build` and `npm run lint` pass; `/dashboard` verified serving 200, and a headless-Chrome screenshot matched the reference layout.
+- **Prisma + Neon PostgreSQL Setup** — Completed. Set up Prisma 7 ORM against a serverless Neon Postgres DB with the full initial schema. See @context/features/database-spec.md.
+  - Upgraded Node to **v26** via nvm — Prisma 7 hard-requires Node ≥20.19 and refused to install on the prior v20.9.0. (Note: nvm only activates in interactive shells; the system `/usr/local/bin/node` still shadows it non-interactively.)
+  - Installed **Prisma 7.8.0** with the required driver-adapter stack: `@prisma/client`, `@prisma/adapter-pg`, `pg`, `dotenv` (+ `tsx` for seeding).
+  - Prisma 7 specifics applied: `prisma-client` generator (not `prisma-client-js`) with mandatory `output` → `src/generated/prisma`; datasource `url` moved out of the schema into `prisma.config.ts` (`directUrl` removed in v7); client imported from the generated path; a `PrismaPg` driver adapter is now required to instantiate `PrismaClient`.
+  - `prisma/schema.prisma`: full DevStash model from project-overview — domain (`Item`, `ItemType`, `Collection`, `Tag`, `ItemTag` + `ContentType` enum), NextAuth v5 (`Account`, `Session`, `VerificationToken` + `emailVerified`/`image` on `User`), FK indexes, `@@unique` constraints, and cascade/set-null rules.
+  - `src/lib/prisma.ts`: singleton `PrismaClient` (global reuse in dev) built on the `PrismaPg` adapter reading `DATABASE_URL`.
+  - Config/wiring: `.env` (gitignored) + committed `.env.example`; gitignore for the generated client with a `!.env.example` exception; ESLint ignores `src/generated/**`; added `postinstall: prisma generate` + `db:migrate`/`db:deploy`/`db:studio` scripts.
+  - Migration: created and applied `migrations/…_init` against the Neon **dev** branch over the **direct (unpooled)** connection (the pooler can break migration DDL). `prisma migrate status` reports in sync; verified all 10 tables via the `pg` driver.
+  - Seed: `prisma/seed.ts` (run via `prisma db seed` → `tsx`) upserts the **7 system `ItemType`s** (`isSystem=true`, `userId=null`) by `id`, matching the mock-data ids/icons/colors; idempotent because the `@@unique([userId,name])` constraint can't dedupe null-user system types.
+  - `prisma validate`, `prisma generate`, `npm run build`, and `npm run lint` all pass.
