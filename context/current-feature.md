@@ -32,3 +32,11 @@
   - Desktop collapse is an icon **rail** (`w-16`) showing brand tile + colored type icons + avatar; collection folders/headers/divider are hidden in the rail (a stack of identical folders is unreadable). Mobile always renders a full-width drawer overlay with a dimmed backdrop.
   - Data imported directly from `src/lib/mock-data.ts`; **Recent** currently uses `collections.slice(0, 5)` since `Collection` has no timestamp yet.
   - `npm run build` and `npm run lint` pass; `/dashboard` verified serving 200 with expected content.
+- **Dashboard UI Phase 3** — Completed. Built out the main area (phase 3 of 3). See @context/features/dashboard-phase-3-spec.md.
+  - Filled in `DashboardPage`: header + subtitle, then Stats, Collections, Pinned, and Recent sections; wrapped in a `max-w-6xl` container. Kept as a server component (no `"use client"`).
+  - `StatsCards`: 4 cards (Total Items, Collections, Favorite Items, Favorite Collections) computed from mock data; not in the screenshot, per spec.
+  - `CollectionCard`: colored left border + type-icon row (per collection `color`/`typeIds`), star on favorites, item count, description; hover reveals a `MoreHorizontal` menu affordance.
+  - `ItemCard` (shared by Pinned + Recent): type-colored icon tile + left border, pin/star badges, `Jan 15`-style date (UTC-safe), description, and tag pills.
+  - Page shows all 6 collections, pinned items, and the 10 most recent items (only 7 exist, sorted newest-first); added `getItemType(typeId)` lookup helper to `mock-data.ts`.
+  - Data-driven hex colors use inline `style` only where unavoidable (card left borders); everything else is Tailwind + lucide's `color` prop.
+  - `npm run build` and `npm run lint` pass; `/dashboard` verified serving 200, and a headless-Chrome screenshot matched the reference layout.

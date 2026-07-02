@@ -118,6 +118,10 @@ export const collections: Collection[] = [
   },
 ];
 
+export function getItemType(typeId: string): ItemType | undefined {
+  return itemTypes.find((type) => type.id === typeId);
+}
+
 export const items: Item[] = [
   {
     id: "item_use_auth",
