@@ -1,10 +1,18 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { type DashboardCollection } from "@/lib/db/collections";
+import { type SidebarItemType } from "@/lib/db/items";
 import { SidebarContent } from "@/components/dashboard/SidebarContent";
 import { useSidebar } from "@/components/dashboard/SidebarProvider";
 
-export function Sidebar() {
+export function Sidebar({
+  itemTypes,
+  collections,
+}: {
+  itemTypes: SidebarItemType[];
+  collections: DashboardCollection[];
+}) {
   const { collapsed, mobileOpen, closeMobile } = useSidebar();
 
   return (
@@ -16,7 +24,11 @@ export function Sidebar() {
           collapsed ? "md:w-16" : "md:w-64",
         )}
       >
-        <SidebarContent collapsed={collapsed} />
+        <SidebarContent
+          collapsed={collapsed}
+          itemTypes={itemTypes}
+          collections={collections}
+        />
       </aside>
 
       {/* Mobile: drawer overlay */}
@@ -40,7 +52,7 @@ export function Sidebar() {
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
-          <SidebarContent />
+          <SidebarContent itemTypes={itemTypes} collections={collections} />
         </aside>
       </div>
     </>

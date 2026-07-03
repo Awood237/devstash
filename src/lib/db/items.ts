@@ -25,6 +25,22 @@ export interface ItemStats {
   favorites: number;
 }
 
+export interface SidebarItemType {
+  id: string;
+  /** Display name, e.g. "Snippet". */
+  name: string;
+  /** URL slug for /items/[slug], e.g. "snippet". */
+  slug: string;
+  icon: string;
+  color: string;
+  /** Number of the demo user's items of this type. */
+  count: number;
+}
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 // Shared shape for the item + relations we select, so the mapper is typed.
 const itemSelect = {
   id: true,
@@ -89,6 +105,39 @@ export async function getRecentItems(limit = 10): Promise<DashboardItem[]> {
   });
 
   return items.map(toDashboardItem);
+}
+
+/**
+ * The system item types for the sidebar, each with a count of the demo user's
+ * items of that type. Includes types with zero items (navigation), ordered by
+ * count (most items first), ties broken alphabetically by name.
+ */
+export async function getSidebarItemTypes(): Promise<SidebarItemType[]> {
+  await connection();
+
+  const types = await prisma.itemType.findMany({
+    where: { isSystem: true },
+    select: {
+      id: true,
+      name: true,
+      icon: true,
+      color: true,
+      _count: {
+        select: { items: { where: { user: { email: DEMO_USER_EMAIL } } } },
+      },
+    },
+  });
+
+  return types
+    .map((type) => ({
+      id: type.id,
+      name: capitalize(type.name),
+      slug: type.name.toLowerCase(),
+      icon: type.icon ?? "File",
+      color: type.color ?? DEFAULT_COLOR,
+      count: type._count.items,
+    }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
 /** Total and favorite item counts for the demo user. */
