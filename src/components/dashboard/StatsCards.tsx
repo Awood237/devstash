@@ -1,7 +1,8 @@
 import { FileStack, FolderOpen, Star, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { collections, items } from "@/lib/mock-data";
+import { items } from "@/lib/mock-data";
+import { type DashboardCollection } from "@/lib/db/collections";
 
 interface Stat {
   label: string;
@@ -10,7 +11,11 @@ interface Stat {
   color: string;
 }
 
-export function StatsCards() {
+export function StatsCards({
+  collections,
+}: {
+  collections: DashboardCollection[];
+}) {
   const stats: Stat[] = [
     {
       label: "Total Items",

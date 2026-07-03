@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { MoreHorizontal, Star } from "lucide-react";
 
-import { getItemType, type Collection } from "@/lib/mock-data";
+import { type DashboardCollection } from "@/lib/db/collections";
 import { TypeIcon } from "@/components/dashboard/TypeIcon";
 
-export function CollectionCard({ collection }: { collection: Collection }) {
+export function CollectionCard({
+  collection,
+}: {
+  collection: DashboardCollection;
+}) {
   return (
     <Link
       href={`/collections/${collection.id}`}
@@ -33,18 +37,14 @@ export function CollectionCard({ collection }: { collection: Collection }) {
       )}
 
       <div className="mt-auto flex items-center gap-2 pt-1">
-        {collection.typeIds.map((typeId) => {
-          const type = getItemType(typeId);
-          if (!type) return null;
-          return (
-            <TypeIcon
-              key={typeId}
-              name={type.icon}
-              color={type.color}
-              className="size-4"
-            />
-          );
-        })}
+        {collection.types.map((type) => (
+          <TypeIcon
+            key={type.id}
+            name={type.icon}
+            color={type.color}
+            className="size-4"
+          />
+        ))}
       </div>
     </Link>
   );

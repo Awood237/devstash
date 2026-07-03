@@ -1,4 +1,5 @@
 import {
+  Code,
   Code2,
   File,
   FileText,
@@ -6,15 +7,22 @@ import {
   Link as LinkIcon,
   Sparkles,
   SquareChevronRight,
+  StickyNote,
+  Terminal,
   type LucideIcon,
 } from "lucide-react";
 
-// Maps the `icon` strings stored on ItemType (mock data) to lucide components.
+// Maps the `icon` strings stored on ItemType to lucide components. Covers both
+// the mock-data names (Code2, SquareChevronRight, FileText) used by the sidebar
+// and the seeded DB names (Code, Terminal, StickyNote).
 const iconMap: Record<string, LucideIcon> = {
+  Code,
   Code2,
   Sparkles,
   SquareChevronRight,
+  Terminal,
   FileText,
+  StickyNote,
   File,
   Image: ImageIcon,
   Link: LinkIcon,
