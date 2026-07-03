@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { connection } from "next/server";
 
 import { prisma } from "@/lib/prisma";
@@ -32,9 +33,12 @@ export interface DashboardCollection {
  * item count, the distinct types present (for the icon row), and a border
  * color derived from the most-used type. Ordered newest-first.
  */
-export async function getCollections(): Promise<DashboardCollection[]> {
+export const getCollections = cache(async function getCollections(): Promise<
+  DashboardCollection[]
+> {
   // Read live per-request, not baked in at build time (excludes the DB query
   // from prerendering — the Next 16 way to opt out of static rendering).
+  // Wrapped in cache() so the dashboard layout (sidebar) and page share one query.
   await connection();
 
   const collections = await prisma.collection.findMany({
@@ -80,4 +84,4 @@ export async function getCollections(): Promise<DashboardCollection[]> {
       types: ranked.map((entry) => entry.meta),
     };
   });
-}
+});

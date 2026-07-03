@@ -5,13 +5,11 @@ import { useState } from "react";
 import { ChevronDown, Folder, Layers, Settings, Star } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { collections, currentUser, itemTypes } from "@/lib/mock-data";
+import { currentUser } from "@/lib/mock-data";
+import { type DashboardCollection } from "@/lib/db/collections";
+import { type SidebarItemType } from "@/lib/db/items";
 import { TypeIcon } from "@/components/dashboard/TypeIcon";
 import { useSidebar } from "@/components/dashboard/SidebarProvider";
-
-function typeSlug(name: string) {
-  return name.toLowerCase();
-}
 
 function initials(name: string) {
   return name
@@ -45,7 +43,15 @@ function SectionHeader({
   );
 }
 
-export function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
+export function SidebarContent({
+  collapsed = false,
+  itemTypes,
+  collections,
+}: {
+  collapsed?: boolean;
+  itemTypes: SidebarItemType[];
+  collections: DashboardCollection[];
+}) {
   const { closeMobile } = useSidebar();
   const [typesOpen, setTypesOpen] = useState(true);
   const [collectionsOpen, setCollectionsOpen] = useState(true);
@@ -95,7 +101,7 @@ export function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
             {itemTypes.map((type) => (
               <li key={type.id}>
                 <Link
-                  href={`/items/${typeSlug(type.name)}`}
+                  href={`/items/${type.slug}`}
                   onClick={closeMobile}
                   className={linkClass}
                   title={collapsed ? `${type.name} (${type.count})` : undefined}
@@ -181,10 +187,13 @@ export function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
                       className={linkClass}
                       title={collapsed ? collection.name : undefined}
                     >
-                      <Folder
-                        color={collection.color}
-                        className="size-4 shrink-0"
-                      />
+                      {/* Colored circle keyed to the most-used item type. */}
+                      <span className="flex size-4 shrink-0 items-center justify-center">
+                        <span
+                          className="size-2.5 rounded-full"
+                          style={{ backgroundColor: collection.color }}
+                        />
+                      </span>
                       {!collapsed && (
                         <>
                           <span className="flex-1 truncate">
@@ -200,6 +209,16 @@ export function SidebarContent({ collapsed = false }: { collapsed?: boolean }) {
                 ))}
               </ul>
             </div>
+
+            {!collapsed && (
+              <Link
+                href="/collections"
+                onClick={closeMobile}
+                className="text-sidebar-foreground/60 hover:text-sidebar-foreground block px-3 py-1.5 text-xs font-medium transition-colors"
+              >
+                View all collections
+              </Link>
+            )}
           </div>
         )}
       </nav>
