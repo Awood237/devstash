@@ -1,18 +1,25 @@
 # Current Feature
 
-<!-- Feature name and short description -->
+Dashboard Collections — replace the dummy collection data in the dashboard main area with real data from the Neon database via Prisma. See @context/features/dashboard-collections-spec.md.
 
 ## Status
 
-<!-- Not Started | In Progress | Completed -->
+Completed
 
 ## Goals
 
-<!-- Goals and requirements -->
+- Replace the mock collection data (`src/lib/mock-data.ts`) shown in the dashboard main area with real data fetched from the Neon database via Prisma.
+- Keep the current design: 6 recent collection cards, matching the existing layout and `@context/screenshots/dashboard-ui-main.png`.
+- Create `src/lib/db/collections.ts` with the data-fetching functions.
+- Fetch collections directly in the server component.
+- Derive each collection card's border color from the most-used content type in that collection.
+- Show small icons of all types present in each collection.
+- Update the collection stats display.
+- Do NOT add the items list underneath the collections yet — that comes later.
 
 ## Notes
 
-<!-- Any extra notes -->
+- Spec: @context/features/dashboard-collections-spec.md
 
 ## History
 
@@ -58,3 +65,12 @@
   - Followed seed-spec's **5 collections** (React Patterns⭐, AI Workflows⭐, DevOps, Terminal Commands, Design Resources) with **18 items** total (3/3/4/4/4) — Brad's final seed only made 3 and left items unlinked, which doesn't fit our one-collection-per-item model.
   - Seed is idempotent: upserts types + user, deletes the demo user's existing items then collections, and recreates. Run via `npm run db:seed`-equivalent `prisma db seed` (→ `tsx`).
   - Gotcha: `prisma migrate dev` did not refresh the generated client, so the first seed failed on `Unknown argument name`; an explicit `prisma generate` fixed it. Verified 1 user / 7 types / 5 collections / 18 items in Neon; `npm run build` and `npm run lint` pass.
+- **Dashboard Collections** — Completed. Replaced the mock collection data in the dashboard main area with live data from Neon via Prisma. See @context/features/dashboard-collections-spec.md.
+  - Added `src/lib/db/collections.ts` with `getCollections()` + exported `DashboardCollection` / `CollectionTypeMeta` types. Fetches the seeded demo user's collections (`demo@devstash.io`, hardcoded until auth exists), newest-first, including each item's `type` (id/icon/color).
+  - Per collection it tallies items by type to derive: `itemCount`, `types` (distinct types ordered most-used-first, for the icon row), and `color` (border = most-used type's color, `#6b7280` fallback when empty).
+  - `page.tsx` is now an async server component that awaits `getCollections()`; passes the list to `StatsCards` and slices the first 6 for cards. **Pinned/Recent items still use mock data** (deferred per spec).
+  - `StatsCards` now takes a `collections` prop — Collections + Favorite Collections come from the DB; Total/Favorite **Items** stay on mock until items are wired up.
+  - `CollectionCard` switched from the mock `Collection` + `getItemType()` lookup to `DashboardCollection` with embedded `types`.
+  - `TypeIcon`: added `Code`, `Terminal`, `StickyNote` to the icon map — the DB seed stores those names, which weren't in the mock-data set (would have silently fallen back to `File`).
+  - Made the route dynamic the Next 16 way: `await connection()` inside `getCollections()` (not `export const dynamic`), so the DB read runs per-request instead of being baked in at build (`/dashboard` now builds as `ƒ Dynamic`).
+  - Verified against the running dev server: main area shows the 5 real collections with correct counts (React Patterns 3, AI Workflows 3, DevOps 4, Terminal Commands 4, Design Resources 4), most-used-type border colors (e.g. DevOps→link green with 2 links), and type icons. `npm run build` and `npm run lint` pass. Sidebar collections remain on mock data (out of scope).

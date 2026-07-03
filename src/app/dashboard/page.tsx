@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Clock, Pin } from "lucide-react";
 
-import { collections, items } from "@/lib/mock-data";
+import { items } from "@/lib/mock-data";
+import { getCollections } from "@/lib/db/collections";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { CollectionCard } from "@/components/dashboard/CollectionCard";
 import { ItemCard } from "@/components/dashboard/ItemCard";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const collections = await getCollections();
   const recentCollections = collections.slice(0, 6);
   const pinnedItems = items.filter((item) => item.isPinned);
   const recentItems = [...items]
@@ -24,7 +26,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <StatsCards />
+      <StatsCards collections={collections} />
 
       {/* Collections */}
       <section className="space-y-4">
