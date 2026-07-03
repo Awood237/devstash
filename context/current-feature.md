@@ -1,6 +1,6 @@
 # Current Feature
 
-Dashboard Collections — replace the dummy collection data in the dashboard main area with real data from the Neon database via Prisma. See @context/features/dashboard-collections-spec.md.
+Dashboard Items — replace the dummy item data (Pinned + Recent) in the dashboard main area with real data from the Neon database via Prisma. See @context/features/dashboard-items-spec.md.
 
 ## Status
 
@@ -8,18 +8,19 @@ Completed
 
 ## Goals
 
-- Replace the mock collection data (`src/lib/mock-data.ts`) shown in the dashboard main area with real data fetched from the Neon database via Prisma.
-- Keep the current design: 6 recent collection cards, matching the existing layout and `@context/screenshots/dashboard-ui-main.png`.
-- Create `src/lib/db/collections.ts` with the data-fetching functions.
-- Fetch collections directly in the server component.
-- Derive each collection card's border color from the most-used content type in that collection.
-- Show small icons of all types present in each collection.
-- Update the collection stats display.
-- Do NOT add the items list underneath the collections yet — that comes later.
+- Replace the mock item data (`src/lib/mock-data.ts`) for both the **Pinned** and **Recent** sections of the dashboard main area with real data fetched from the Neon database via Prisma.
+- Keep the current design/layout, matching `@context/screenshots/dashboard-ui-main.png`.
+- Create `src/lib/db/items.ts` with the data-fetching functions.
+- Fetch items directly in the server component.
+- Derive each item card's icon/border from the item's type.
+- Display item type tags and everything else currently shown on the card.
+- If there are no pinned items, render nothing in the Pinned section.
+- Update the (item-related) stats display so Total Items / Favorite Items come from the DB.
 
 ## Notes
 
-- Spec: @context/features/dashboard-collections-spec.md
+- Spec: @context/features/dashboard-items-spec.md
+- Builds on the Dashboard Collections feature (`src/lib/db/collections.ts`, `TypeIcon`, dynamic rendering via `connection()`); mirror that data-access pattern for items.
 
 ## History
 
@@ -74,3 +75,11 @@ Completed
   - `TypeIcon`: added `Code`, `Terminal`, `StickyNote` to the icon map — the DB seed stores those names, which weren't in the mock-data set (would have silently fallen back to `File`).
   - Made the route dynamic the Next 16 way: `await connection()` inside `getCollections()` (not `export const dynamic`), so the DB read runs per-request instead of being baked in at build (`/dashboard` now builds as `ƒ Dynamic`).
   - Verified against the running dev server: main area shows the 5 real collections with correct counts (React Patterns 3, AI Workflows 3, DevOps 4, Terminal Commands 4, Design Resources 4), most-used-type border colors (e.g. DevOps→link green with 2 links), and type icons. `npm run build` and `npm run lint` pass. Sidebar collections remain on mock data (out of scope).
+- **Dashboard Items** — Completed. Replaced the mock item data in the dashboard's Pinned + Recent sections with live data from Neon via Prisma. See @context/features/dashboard-items-spec.md.
+  - Added `src/lib/db/items.ts` (mirrors `collections.ts`): `getPinnedItems()`, `getRecentItems(limit = 10)`, `getItemStats()`, plus exported `DashboardItem` / `ItemStats` types. A shared `itemSelect` + `toDashboardItem` mapper keeps the three queries consistent; each awaits `connection()` so reads run per-request. Scoped to the seeded demo user (`demo@devstash.io`) until auth exists.
+  - Each item embeds its `type` (icon/color) for the card's icon tile + left border, and flattens the `ItemTag`→`Tag` join to `string[]` tags (no tags seeded yet, so pills are empty but supported).
+  - `page.tsx` now fetches collections, pinned, recent, and item stats together via `Promise.all`. Pinned section keeps its `pinnedItems.length > 0` guard, so it renders nothing when there are none.
+  - `StatsCards` now takes an `itemStats` prop — Total Items / Favorite Items come from the DB (`count`), no longer from mock-data. Combined with the earlier collections work, all 4 stat cards are now DB-backed.
+  - `ItemCard` switched from the mock `Item` + `getItemType()` lookup to `DashboardItem` with an embedded `type`; `formatDate` now takes a `Date` (Prisma `createdAt`) instead of an ISO string.
+  - The dashboard page and its cards no longer import `mock-data`; only the sidebar still uses it (out of scope).
+  - Verified on the dev server: stats 18/5/2/2; Pinned shows the 2 seeded pinned items (`useDebounce Hook`, `Git Undo Last Commit`) with pin badges; Recent shows 10 newest items; icons/borders match each item's type. `npm run build` and `npm run lint` pass; `/dashboard` builds as `ƒ Dynamic`.

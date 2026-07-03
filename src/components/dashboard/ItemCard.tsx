@@ -1,30 +1,28 @@
 import Link from "next/link";
 import { Pin, Star } from "lucide-react";
 
-import { getItemType, type Item } from "@/lib/mock-data";
+import { type DashboardItem } from "@/lib/db/items";
 import { TypeIcon } from "@/components/dashboard/TypeIcon";
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+function formatDate(date: Date) {
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     timeZone: "UTC",
   });
 }
 
-export function ItemCard({ item }: { item: Item }) {
-  const type = getItemType(item.typeId);
+export function ItemCard({ item }: { item: DashboardItem }) {
+  const { type } = item;
 
   return (
     <Link
       href={`/items/${item.id}`}
       className="bg-card hover:bg-accent/40 flex gap-3 rounded-xl border border-l-4 p-4 transition-colors"
-      style={{ borderLeftColor: type?.color }}
+      style={{ borderLeftColor: type.color }}
     >
       <div className="bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg">
-        {type && (
-          <TypeIcon name={type.icon} color={type.color} className="size-5" />
-        )}
+        <TypeIcon name={type.icon} color={type.color} className="size-5" />
       </div>
 
       <div className="min-w-0 flex-1">

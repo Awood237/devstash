@@ -1,8 +1,8 @@
 import { FileStack, FolderOpen, Star, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { items } from "@/lib/mock-data";
 import { type DashboardCollection } from "@/lib/db/collections";
+import { type ItemStats } from "@/lib/db/items";
 
 interface Stat {
   label: string;
@@ -13,13 +13,15 @@ interface Stat {
 
 export function StatsCards({
   collections,
+  itemStats,
 }: {
   collections: DashboardCollection[];
+  itemStats: ItemStats;
 }) {
   const stats: Stat[] = [
     {
       label: "Total Items",
-      value: items.length,
+      value: itemStats.total,
       icon: FileStack,
       color: "#3b82f6",
     },
@@ -31,7 +33,7 @@ export function StatsCards({
     },
     {
       label: "Favorite Items",
-      value: items.filter((item) => item.isFavorite).length,
+      value: itemStats.favorites,
       icon: Star,
       color: "#eab308",
     },
